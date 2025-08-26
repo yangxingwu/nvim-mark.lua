@@ -399,7 +399,7 @@ function M.mark_visual()
     vim.notify("Mark: No visual selection.", vim.log.levels.WARN, { title = "Mark Plugin" })
   end
   -- Exit visual mode after marking
-  vim.cmd("normal! \\<Esc>")
+  vim.api.nvim_feedkeys(vim.keycode('<Esc>'), 'n', false)
 end
 
 --- M.mark_word()
@@ -415,7 +415,7 @@ function M.mark_word()
   -- Exit visual mode if currently in visual mode
   local current_mode = vim.fn.mode()
   if current_mode == 'v' or current_mode == 'V' or current_mode == '' then -- '' is Visual block mode (Ctrl-V)
-    vim.cmd('normal! \\<Esc>')
+    vim.api.nvim_feedkeys(vim.keycode('<Esc>'), 'n', false)
   end
 end
 
