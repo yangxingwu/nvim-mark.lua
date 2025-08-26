@@ -352,40 +352,72 @@ end
 -- Helper function to retrieve the text from the current visual selection.
 -- @return (string|nil): The selected text, or nil if no visual selection.
 local function get_visual_selection()
-  -- Save current view and restore it later.
-  local view = vim.fn.winsaveview()
-  vim.cmd("normal! gv") -- Re-select last visual selection.
+  local mode = vim.fn.mode()
+  -- If currently in visual mode, read the live selection directly
+  if mode == "v" or mode == "V" or mode == "\22" then
+    local s = vim.fn.getpos("v")
+    local e = vim.fn.getpos(".")
+    local srow, scol = s[2], s[3]
+    local erow, ecol = e[2], e[3]
+    if (erow < srow) or (erow == srow and ecol < scol) then
+      srow, erow = erow, srow
+      scol, ecol = ecol, scol
+    end
 
-  local start_pos = vim.api.nvim_buf_get_mark(0, "<")
-  local end_pos = vim.api.nvim_buf_get_mark(0, ">")
+    local selected_text
+    if mode == "V" then
+      local lines = vim.api.nvim_buf_get_lines(0, srow - 1, erow, false)
+      selected_text = table.concat(lines, "\n")
+    elseif mode == "\22" then
+      local cstart, cend = math.min(scol, ecol), math.max(scol, ecol)
+      local parts = {}
+      for l = srow, erow do
+        local line = vim.fn.getline(l)
+        parts[#parts + 1] = string.sub(line, cstart, cend)
+      end
+      selected_text = table.concat(parts, "\n")
+    else
+      local chunks = vim.api.nvim_buf_get_text(0, srow - 1, scol - 1, erow - 1, ecol, {})
+      selected_text = table.concat(chunks, "\n")
+    end
+    if selected_text == "" then return nil end
+    return selected_text
+  end
 
-  if not start_pos or not end_pos then
-    vim.fn.winrestview(view)
+  -- Fallback: use '<' and '>' marks only if present (do not force last selection)
+  local s_mark = vim.api.nvim_buf_get_mark(0, "<")
+  local e_mark = vim.api.nvim_buf_get_mark(0, ">")
+  if not s_mark or not e_mark then
+    return nil
+  end
+  local srow0, scol0 = s_mark[1], s_mark[2]
+  local erow0, ecol0 = e_mark[1], e_mark[2]
+  if not srow0 or not erow0 then
     return nil
   end
 
-  local start_row, start_col = start_pos[1], start_pos[2]
-  local end_row, end_col = end_pos[1], end_pos[2]
-
-  -- nvim_buf_get_lines uses 0-indexed rows, but Lua string.sub is 1-indexed.
-  -- end_row for nvim_buf_get_lines is exclusive, so we need end_row + 1.
-  local lines = vim.api.nvim_buf_get_lines(0, start_row, end_row + 1, false)
-  local selected_text = {}
-
-  if start_row == end_row then
-    -- Single line selection.
-    table.insert(selected_text, string.sub(lines[1], start_col + 1, end_col))
-  else
-    -- Multi-line selection.
-    table.insert(selected_text, string.sub(lines[1], start_col + 1)) -- First line from start_col
-    for i = 2, #lines - 1 do
-      table.insert(selected_text, lines[i]) -- Full intermediate lines
-    end
-    table.insert(selected_text, string.sub(lines[#lines], 1, end_col)) -- Last line up to end_col
+  -- Ensure ordering
+  if (erow0 < srow0) or (erow0 == srow0 and ecol0 < scol0) then
+    srow0, erow0 = erow0, srow0
+    scol0, ecol0 = ecol0, scol0
   end
 
-  vim.fn.winrestview(view) -- Restore original view.
-  return table.concat(selected_text, "\n")
+  local lines = vim.api.nvim_buf_get_lines(0, srow0, erow0 + 1, false)
+  if #lines == 0 then
+    return nil
+  end
+
+  local selected_text
+  if srow0 == erow0 then
+    selected_text = string.sub(lines[1], scol0 + 1, ecol0)
+  else
+    lines[1] = string.sub(lines[1], scol0 + 1)
+    lines[#lines] = string.sub(lines[#lines], 1, ecol0)
+    selected_text = table.concat(lines, "\n")
+  end
+
+  if selected_text == "" then return nil end
+  return selected_text
 end
 
 --- M.mark_visual()
