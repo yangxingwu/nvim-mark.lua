@@ -94,7 +94,8 @@ local function apply_mark_to_buffer_literal(bufnr, mark_entry)
 
   -- Iterate through each line to find occurrences of the pattern.
   for line_idx, line in ipairs(lines) do
-    local col_start = 0
+    -- Lua string.find is 1-based; start from 1 and advance to end_pos + 1 to avoid infinite loops
+    local col_start = 1
     -- Use string.find for literal string search. The 'true' argument makes it a plain search.
     while true do
       local start_pos, end_pos = string.find(line, pattern, col_start, true)
@@ -112,7 +113,8 @@ local function apply_mark_to_buffer_literal(bufnr, mark_entry)
         )
         -- Store the extmark ID so we can clear it later.
         table.insert(mark_entry.extmark_ids[bufnr], extmark_id)
-        col_start = assert(end_pos) -- Continue search from after the current match.
+        -- Continue search from the character after the current match
+        col_start = end_pos + 1
       else
         break -- No more matches on this line.
       end
