@@ -412,6 +412,11 @@ function M.mark_word()
   else
     vim.notify("Mark: No word under cursor.", vim.log.levels.WARN, { title = "Mark Plugin" })
   end
+  -- Exit visual mode if currently in visual mode
+  local current_mode = vim.fn.mode()
+  if current_mode == 'v' or current_mode == 'V' or current_mode == '' then -- '' is Visual block mode (Ctrl-V)
+    vim.cmd('normal! \\<Esc>')
+  end
 end
 
 --- M.autocmds()
