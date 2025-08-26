@@ -4,7 +4,7 @@
 
 -- Ensure the Lua module is loaded only once to prevent re-initialization issues.
 if vim.g.mark_plugin_loaded then
-	return
+  return
 end
 vim.g.mark_plugin_loaded = true
 
@@ -19,24 +19,24 @@ mark.autocmds()
 -- Create the :Mark user command.
 -- It accepts variable arguments (`nargs = "*"`) and provides tab completion.
 vim.api.nvim_create_user_command(
-	"Mark",
-	mark.mark_command, -- The handler function for the command.
-	{
-		nargs = "*", -- Accepts zero or more arguments.
-		-- Custom completion function for the command.
-		complete = function(_, cmdline, _)
-			local args = vim.split(cmdline, "%s+", { plain = true, trimempty = true })
-			if #args == 1 then
-				-- If only ":Mark" is typed, suggest subcommands.
-				return { "add", "clear", "list" }
-			elseif #args == 2 and args[2] == "clear" then
-				-- If ":Mark clear" is typed, suggest currently active patterns for clearing.
-				return mark.get_active_patterns()
-			end
-			return {} -- No completion for other cases.
-		end,
-		desc = "Highlight words/patterns with different colors", -- Description for :h :Mark.
-	}
+  "Mark",
+  mark.mark_command, -- The handler function for the command.
+  {
+    nargs = "*", -- Accepts zero or more arguments.
+    -- Custom completion function for the command.
+    complete = function(_, cmdline, _)
+      local args = vim.split(cmdline, "%s+", { plain = true, trimempty = true })
+      if #args == 1 then
+        -- If only ":Mark" is typed, suggest subcommands.
+        return { "add", "clear", "list" }
+      elseif #args == 2 and args[2] == "clear" then
+        -- If ":Mark clear" is typed, suggest currently active patterns for clearing.
+        return mark.get_active_patterns()
+      end
+      return {} -- No completion for other cases.
+    end,
+    desc = "Highlight words/patterns with different colors", -- Description for :h :Mark.
+  }
 )
 
 -- Define default key mappings using <Plug> mappings.
@@ -45,10 +45,10 @@ vim.api.nvim_create_user_command(
 
 -- Normal and Visual mode mapping to mark the word under the cursor or visual selection.
 vim.keymap.set(
-	{ "n", "v" },
-	"<Plug>MarkWord",
-	mark.mark_word,
-	{ desc = "Mark word under cursor (or visual selection in visual mode)" }
+  { "n", "v" },
+  "<Plug>MarkWord",
+  mark.mark_word,
+  { desc = "Mark word under cursor (or visual selection in visual mode)" }
 )
 -- Visual mode specific mapping to mark the visual selection.
 vim.keymap.set("v", "<Plug>MarkVisual", mark.mark_visual, { desc = "Mark visual selection" })
