@@ -30,19 +30,16 @@ local M = {}
 -- Define a namespace for our extmarks to manage them efficiently.
 local mark_ns = vim.api.nvim_create_namespace("mark_plugin_namespace")
 
--- Default highlight colors. Users can override these by setting vim.g.mark_plugin_colors
+-- Default highlight colors matching vim-mark 'original' palette
+-- Users can override these by setting vim.g.mark_plugin_colors
 -- before the plugin loads (e.g., in their init.lua/init.vim).
 local default_hl_colors = {
-  "#FFDDC1", -- Light Peach
-  "#D4F1F4", -- Light Blue
-  "#E0FFFF", -- Azure
-  "#D8BFD8", -- Thistle
-  "#F0E68C", -- Khaki
-  "#ADD8E6", -- Light Sky Blue
-  "#FFB6C1", -- Light Pink
-  "#98FB98", -- Pale Green
-  "#FFFACD", -- Lemon Chiffon
-  "#C0C0C0", -- Silver
+  "#8CCBEA", -- Cyan background (MarkWord1)
+  "#A4E57E", -- Green background (MarkWord2)
+  "#FFDB72", -- Yellow background (MarkWord3)
+  "#FF7272", -- Red background (MarkWord4)
+  "#FFB3FF", -- Magenta background (MarkWord5)
+  "#9999FF", -- Blue background (MarkWord6)
 }
 
 -- Table to store dynamically created highlight group names.
@@ -68,9 +65,9 @@ function M.setup()
   -- Use user-defined colors if available, otherwise use defaults.
   local colors_to_use = vim.g.mark_plugin_colors or default_hl_colors
 
-  -- Define highlight groups dynamically based on the color list.
+  -- Use Vim's standard MarkWord highlight groups
   for i, color in ipairs(colors_to_use) do
-    local group_name = "MarkHighlight" .. i
+    local group_name = "MarkWord" .. i
     hl_groups[i] = group_name
     -- Set the highlight group with a background color. `force = true` ensures it takes precedence.
     vim.api.nvim_set_hl(0, group_name, { bg = color, force = true })
