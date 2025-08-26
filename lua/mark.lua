@@ -398,6 +398,8 @@ function M.mark_visual()
   else
     vim.notify("Mark: No visual selection.", vim.log.levels.WARN, { title = "Mark Plugin" })
   end
+  -- Exit visual mode after marking
+  vim.cmd("normal! \\<Esc>")
 end
 
 --- M.mark_word()
