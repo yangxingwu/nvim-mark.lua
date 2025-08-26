@@ -390,11 +390,24 @@ end
 
 --- M.mark_visual()
 -- Function to be called by the <Plug>MarkVisual mapping.
--- Marks the currently visually selected text as a literal string.
+-- Toggles mark for the visually selected text (mark if not marked, clear if already marked).
 function M.mark_visual()
   local selected_text = get_visual_selection()
   if selected_text and selected_text:len() > 0 then
-    add_mark(selected_text, true) -- Visual selection is always treated as a literal string.
+    -- Check if selected text is already marked
+    local is_marked = false
+    for _, mark_entry in ipairs(active_marks) do
+      if mark_entry.pattern == selected_text and mark_entry.is_literal then
+        is_marked = true
+        break
+      end
+    end
+
+    if is_marked then
+      clear_mark(selected_text) -- Clear if already marked
+    else
+      add_mark(selected_text, true) -- Mark if not marked
+    end
   else
     vim.notify("Mark: No visual selection.", vim.log.levels.WARN, { title = "Mark Plugin" })
   end
@@ -404,18 +417,31 @@ end
 
 --- M.mark_word()
 -- Function to be called by the <Plug>MarkWord mapping.
--- Marks the word under the cursor as a literal string.
+-- Toggles mark for the word under the cursor (mark if not marked, clear if already marked).
 function M.mark_word()
   local word = vim.fn.expand("<cword>") -- Get the word under the cursor.
   if word and word:len() > 0 then
-    add_mark(word, true) -- Word under cursor is always treated as a literal string.
+    -- Check if word is already marked
+    local is_marked = false
+    for _, mark_entry in ipairs(active_marks) do
+      if mark_entry.pattern == word and mark_entry.is_literal then
+        is_marked = true
+        break
+      end
+    end
+
+    if is_marked then
+      clear_mark(word) -- Clear if already marked
+    else
+      add_mark(word, true) -- Mark if not marked
+    end
   else
     vim.notify("Mark: No word under cursor.", vim.log.levels.WARN, { title = "Mark Plugin" })
   end
   -- Exit visual mode if currently in visual mode
   local current_mode = vim.fn.mode()
-  if current_mode == 'v' or current_mode == 'V' or current_mode == '' then -- '' is Visual block mode (Ctrl-V)
-    vim.api.nvim_feedkeys(vim.keycode('<Esc>'), 'n', false)
+  if current_mode == "v" or current_mode == "V" or current_mode == "" then -- '' is Visual block mode (Ctrl-V)
+    vim.api.nvim_feedkeys(vim.keycode("<Esc>"), "n", false)
   end
 end
 
