@@ -139,23 +139,42 @@ local function apply_mark_to_buffer_regex(bufnr, mark_entry)
 
   local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
 
-  -- Iterate through each line to find occurrences of the regex pattern.
+  -- Use vim.regex for proper Vim regex support
+  local ok, regex = pcall(vim.regex, pattern)
+  if not ok then
+    vim.notify("Mark: Invalid regex pattern '" .. pattern .. "'", vim.log.levels.ERROR, { title = "Mark Plugin" })
+    return
+  end
+
+  -- Iterate through each line to find occurrences of the regex pattern
   for line_idx, line in ipairs(lines) do
     local current_line_idx = line_idx - 1 -- 0-indexed line
-    -- Use string.gmatch to find all matches of the regex in the line.
-    -- We capture the start and end positions using '().()' trick.
-    for match_start, match_end in string.gmatch(line, "().()." .. pattern) do
-      local extmark_id = vim.api.nvim_buf_set_extmark(
-        bufnr,
-        mark_ns,
-        current_line_idx,
-        match_start - 1, -- 0-indexed column start
-        {
-          end_col = match_end - 1, -- 0-indexed column end (exclusive)
-          hl_group = hl_group,
-        }
-      )
-      table.insert(mark_entry.extmark_ids[bufnr], extmark_id)
+    local col_start = 0
+
+    while col_start < #line do
+      local match_start, match_end = regex:match_str(line:sub(col_start + 1))
+      if match_start then
+        -- Adjust positions to account for the substring offset
+        match_start = match_start + col_start
+        match_end = match_end + col_start
+
+        local extmark_id = vim.api.nvim_buf_set_extmark(
+          bufnr,
+          mark_ns,
+          current_line_idx,
+          match_start, -- 0-indexed column start
+          {
+            end_col = match_end, -- 0-indexed column end (exclusive)
+            hl_group = hl_group,
+          }
+        )
+        table.insert(mark_entry.extmark_ids[bufnr], extmark_id)
+
+        -- Move to next position to find overlapping matches
+        col_start = match_start + 1
+      else
+        break
+      end
     end
   end
 end
