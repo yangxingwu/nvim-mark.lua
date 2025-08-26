@@ -53,16 +53,30 @@ vim.keymap.set(
 -- Visual mode specific mapping to mark the visual selection.
 vim.keymap.set("v", "<Plug>MarkVisual", mark.mark_visual, { desc = "Mark visual selection" })
 
--- Example mappings you can add to your `init.lua` or `init.vim`:
+-- Recommended key mappings you can add to your `init.lua` or `init.vim`:
 --
 -- Lua (init.lua):
--- vim.keymap.set("n", "<leader>m", "<Plug>MarkWord", { desc = "Mark word" })
--- vim.keymap.set("v", "<leader>m", "<Plug>MarkVisual", { desc = "Mark visual selection" })
+-- -- Toggle mark for word under cursor or visual selection (same key for mark/unmark)
+-- vim.keymap.set("n", "<leader>m", "<Plug>MarkWord", { desc = "Toggle mark for word under cursor" })
+-- vim.keymap.set("v", "<leader>m", "<Plug>MarkVisual", { desc = "Toggle mark for visual selection" })
+--
+-- -- Additional useful mappings:
 -- vim.keymap.set("n", "<leader>mc", ":Mark clear<CR>", { desc = "Clear all marks" })
--- vim.keymap.set("n", "<leader>ml", ":Mark list<CR>", { desc = "List marks" })
+-- vim.keymap.set("n", "<leader>ml", ":Mark list<CR>", { desc = "List all marks" })
+-- vim.keymap.set("n", "<leader>mn", ":Mark add ", { desc = "Add new mark pattern" })
 --
 -- Vimscript (init.vim):
+-- " Toggle mark for word under cursor or visual selection (same key for mark/unmark)
 -- nmap <Leader>m <Plug>MarkWord
 -- vmap <Leader>m <Plug>MarkVisual
+--
+-- " Additional useful mappings:
 -- nmap <Leader>mc :Mark clear<CR>
 -- nmap <Leader>ml :Mark list<CR>
+-- nmap <Leader>mn :Mark add
+--
+-- Key Features:
+-- - <leader>m: Toggle mark/unmark for word under cursor or visual selection
+-- - <leader>mc: Clear all marks
+-- - <leader>ml: List all active marks
+-- - <leader>mn: Add new mark pattern (interactive)

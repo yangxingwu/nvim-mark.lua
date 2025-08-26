@@ -54,15 +54,40 @@ require("mark").setup()
 
 ### Key Mappings
 
-The plugin provides `<Plug>` mappings that you can map to your preferred keys:
+The plugin provides `<Plug>` mappings that you can map to your preferred keys. The main feature is **toggle functionality** - the same key both marks and unmarks text, similar to the original vim-mark plugin.
+
+#### Recommended Key Mappings
 
 ```lua
--- Mark word under cursor
-vim.keymap.set('n', '<Leader>m', '<Plug>MarkWord', { desc = 'Mark word under cursor' })
+-- Toggle mark for word under cursor or visual selection (same key for mark/unmark)
+vim.keymap.set('n', '<Leader>m', '<Plug>MarkWord', { desc = 'Toggle mark for word under cursor' })
+vim.keymap.set('v', '<Leader>m', '<Plug>MarkVisual', { desc = 'Toggle mark for visual selection' })
 
--- Mark visual selection
-vim.keymap.set('v', '<Leader>m', '<Plug>MarkVisual', { desc = 'Mark visual selection' })
+-- Additional useful mappings:
+vim.keymap.set('n', '<Leader>mc', ':Mark clear<CR>', { desc = 'Clear all marks' })
+vim.keymap.set('n', '<Leader>ml', ':Mark list<CR>', { desc = 'List all marks' })
+vim.keymap.set('n', '<Leader>mn', ':Mark add ', { desc = 'Add new mark pattern' })
 ```
+
+#### Vimscript Alternative
+
+```vim
+" Toggle mark for word under cursor or visual selection (same key for mark/unmark)
+nmap <Leader>m <Plug>MarkWord
+vmap <Leader>m <Plug>MarkVisual
+
+" Additional useful mappings:
+nmap <Leader>mc :Mark clear<CR>
+nmap <Leader>ml :Mark list<CR>
+nmap <Leader>mn :Mark add
+```
+
+#### Key Features
+
+- **`<Leader>m`**: Toggle mark/unmark for word under cursor or visual selection
+- **`<Leader>mc`**: Clear all marks
+- **`<Leader>ml`**: List all active marks
+- **`<Leader>mn`**: Add new mark pattern (interactive)
 
 ### Examples
 
